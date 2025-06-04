@@ -6,7 +6,7 @@ Libraries to interface with the PreAct TOF sensors.
 Requirements:
 
 - CMake v3.16
-- Requires Boost v1.70 or newer
+- Requires Boost v1.80 or newer
 - Python v3.8 or greater (if using python bindings)
 - Python setuptools
 - libudev-dev (prequisite for libusbp)
