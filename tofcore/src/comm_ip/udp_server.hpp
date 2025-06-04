@@ -15,7 +15,7 @@ namespace tofcore {
 
     public:
       typedef std::function<void (const std::vector<std::byte> &)> on_data_ready_t;
-      UdpServer(boost::asio::io_service& ios, uint16_t udpPort = DEFAULT_UDP_PORT);
+      UdpServer(boost::asio::io_context& ios, uint16_t udpPort = DEFAULT_UDP_PORT);
       ~UdpServer();
 
       uint16_t getDataPort() const

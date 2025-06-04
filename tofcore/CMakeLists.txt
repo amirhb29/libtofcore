@@ -15,7 +15,7 @@ include(cmake/tof_options.cmake)
 
 ###########################
 # Find system dependencies
-set(MIN_BOOST_VERSION 1.70)
+set(MIN_BOOST_VERSION 1.80)
 set(Boost_USE_STATIC_LIBS   ON)
 find_package(Boost ${MIN_BOOST_VERSION} REQUIRED COMPONENTS)
 

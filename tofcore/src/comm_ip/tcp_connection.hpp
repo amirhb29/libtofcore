@@ -15,7 +15,7 @@ namespace tofcore
     class TcpConnection
     {
     public:
-        TcpConnection(boost::asio::io_service &,
+        TcpConnection(boost::asio::io_context &,
                       const uri& uri,
                       log_callback_t log_callback = nullptr,
                       cmd_descr_callback_t cmd_descr_callback = nullptr);

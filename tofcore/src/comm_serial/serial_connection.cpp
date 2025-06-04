@@ -106,7 +106,7 @@ struct SerialConnection::Impl
     std::function<void(const std::vector<std::byte>&)> on_measurement_data_ {};
     std::function<void(bool, const std::vector<std::byte>&)> on_command_response_ {};
 
-    Impl(io_service &io,
+    Impl(io_context &io,
          const std::string &portName,
          uint32_t baud_rate,
          log_callback_t log_callback = nullptr,
@@ -126,7 +126,7 @@ struct SerialConnection::Impl
         this->begin_receive_start();
     }
 
-    Impl(io_service &io,
+    Impl(io_context &io,
          const uri &uri,
          log_callback_t log_callback = nullptr,
          cmd_descr_callback_t cmd_descr_callback = nullptr) :
@@ -182,7 +182,7 @@ struct SerialConnection::Impl
  *
  * ========================================================================= */
 
-SerialConnection::SerialConnection(boost::asio::io_service& io,
+SerialConnection::SerialConnection(boost::asio::io_context& io,
                                    const uri& uri,
                                    log_callback_t log_callback,
                                    cmd_descr_callback_t cmd_descr_callback) :

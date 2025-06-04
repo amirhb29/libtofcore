@@ -34,13 +34,13 @@ namespace tofcore
 
     constexpr uint32_t ANSWER_START_PATTERN = 0xFFFFAA55;   ///< Pattern marking the start of an answer
 
-TcpConnection::TcpConnection(boost::asio::io_service &ioService,
+TcpConnection::TcpConnection(boost::asio::io_context &ioContext,
                              const uri &uri,
                              log_callback_t log_callback,
                              cmd_descr_callback_t cmd_descr_callback) :
-            socket(ioService),
-            resolver(ioService),
-            m_response_timer(ioService),
+            socket(ioContext),
+            resolver(ioContext),
+            m_response_timer(ioContext),
             m_log_callback(log_callback),
             m_cmd_descr_callback(cmd_descr_callback)
     {
@@ -235,20 +235,11 @@ TcpConnection::TcpConnection(boost::asio::io_service &ioService,
             return;
         }
 
-        tcp::resolver::query query(host, std::to_string(port));
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end;
+        auto endpoints = resolver.resolve(host, std::to_string(port));   // results_type
 
-        boost::system::error_code error = boost::asio::error::host_not_found;
-        while (error && endpoint_iterator != end)
-        {
-            socket.close();
-            socket.connect(*endpoint_iterator++, error);
-        }
-        if (error)
-        {
-            throw ::boost::system::system_error(error);
-        }
+        boost::system::error_code ec;
+        boost::asio::connect(socket, endpoints, ec);              // tries each endpoint
+        if (ec) throw boost::system::system_error(ec);
     }
 
     void TcpConnection::disconnect()

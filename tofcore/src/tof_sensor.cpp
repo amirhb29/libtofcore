@@ -49,8 +49,8 @@ public:
                            this, std::placeholders::_1, std::placeholders::_2)),
         m_describeCommand(std::bind(&Sensor::Impl::getCmdName,
                                     this, std::placeholders::_1, std::placeholders::_2)),
-        connection(Connection_T::create(ioService, uri, m_logMsg, m_describeCommand)),
-        measurement_timer_(ioService)
+        connection(Connection_T::create(ioContext, uri, m_logMsg, m_describeCommand)),
+        measurement_timer_(ioContext)
     {
         start_time_ = high_resolution_clock::now();
     }
@@ -62,7 +62,7 @@ public:
         m_describeCommand(std::bind(&Sensor::Impl::getCmdName,
                                     this, std::placeholders::_1, std::placeholders::_2)),
         connection(std::move(connection)),
-        measurement_timer_(ioService)
+        measurement_timer_(ioContext)
     {
     }
 
@@ -98,7 +98,7 @@ public:
         }
     }
 
-    boost::asio::io_service ioService;
+    boost::asio::io_context ioContext;
     std::thread serverThread_;
     std::mutex measurementReadyMutex;
     on_measurement_ready_t measurementReady;
@@ -268,7 +268,7 @@ Sensor::Sensor(std::unique_ptr<Connection_T> connection)
 
 Sensor::~Sensor()
 {
-    pimpl->ioService.stop();
+    pimpl->ioContext.stop();
     pimpl->serverThread_.join();
 }
 
@@ -1276,7 +1276,7 @@ void Sensor::Impl::init()
         {
             try
             { 
-                ioService.run(); 
+                ioContext.run(); 
             }
             catch(std::exception& e)
             {

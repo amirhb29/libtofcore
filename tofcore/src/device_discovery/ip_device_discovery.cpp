@@ -39,9 +39,9 @@ namespace tofcore
     constexpr auto DEVICE_INFO_CMP = [](auto& a, auto& b) { return a.connector_uri < b.connector_uri; };
     typedef std::set<device_info_t, decltype(DEVICE_INFO_CMP)> device_set_t;
 
-    static std::shared_ptr<ip::udp::socket> create_listening_socket(io_service& io_service);
+    static std::shared_ptr<ip::udp::socket> create_listening_socket(io_context& io_context);
     static void do_receive(std::shared_ptr<ip::udp::socket> socket, device_set_t& devices, std::size_t max_count);
-    static void send_query_for_sensors(boost::asio::io_service& io_service);
+    static void send_query_for_sensors(boost::asio::io_context& io_context);
 
 
     /** 
@@ -50,13 +50,13 @@ namespace tofcore
     std::vector<device_info_t> find_ip_devices(std::chrono::steady_clock::duration wait_time, std::size_t max_count)
     {
         auto devices = device_set_t {DEVICE_INFO_CMP};
-        auto io_service = boost::asio::io_service {};
-        auto receive_socket = create_listening_socket(io_service);
+        auto io_context = boost::asio::io_context {};
+        auto receive_socket = create_listening_socket(io_context);
 
         //Setup logic to receive udp packets from devices 
         do_receive(receive_socket, devices, max_count);
-        send_query_for_sensors(io_service);
-        io_service.run_until(std::chrono::steady_clock::now() + wait_time);
+        send_query_for_sensors(io_context);
+        io_context.run_until(std::chrono::steady_clock::now() + wait_time);
 
         return {devices.begin(), devices.end()};
     }
@@ -215,22 +215,22 @@ namespace tofcore
     /**
      * Periodically send query to sensors.
      */
-    void send_query_for_sensors(boost::asio::io_service& io_service)
+    void send_query_for_sensors(boost::asio::io_context& io_context)
     {
         json j = { { "_service", "query" } };
         static std::string s = j.dump();
-        const auto destination_endpoint = ip::udp::endpoint {ip::address::from_string(UDP_MULTICAST_ADDRESS), UDP_MULTICAST_PORT };
+        const auto destination_endpoint = ip::udp::endpoint(ip::make_address(UDP_MULTICAST_ADDRESS), UDP_MULTICAST_PORT);
 
         for (const auto &ifAddr : find_interfaces())
         {
             try
             {
-                auto socket = std::make_shared<ip::udp::socket>(io_service);
+                auto socket = std::make_shared<ip::udp::socket>(io_context);
                 socket->open(ip::udp::v4());
                 socket->set_option(ip::udp::socket::reuse_address(true));
                 socket->bind(
                     ip::udp::endpoint(
-                        ip::address::from_string(ifAddr),
+                        ip::make_address(ifAddr),
                         UDP_MULTICAST_PORT));
             
                 const_buffer buf(s.c_str(), s.size());
@@ -284,12 +284,12 @@ namespace tofcore
      * Setup a socket to receive multicast messages from all
      * interfaces. Start sending query messages and watching for replies.
      */
-    std::shared_ptr<ip::udp::socket> create_listening_socket(io_service& io_service)
+    std::shared_ptr<ip::udp::socket> create_listening_socket(io_context& io_context)
     {
         ip::udp::endpoint listen_endpoint(
             ip::udp::v4(),
             UDP_MULTICAST_PORT);
-        auto socket = std::make_shared<ip::udp::socket>(io_service);
+        auto socket = std::make_shared<ip::udp::socket>(io_context);
 
         socket->open(listen_endpoint.protocol());
         socket->set_option(ip::udp::socket::reuse_address(true));
@@ -298,8 +298,8 @@ namespace tofcore
         for (auto const& ifAddr : find_interfaces())
         {
             socket->set_option(ip::multicast::join_group(
-                ip::address::from_string(UDP_MULTICAST_ADDRESS).to_v4(),
-                ip::address::from_string(ifAddr).to_v4()));
+                ip::make_address(UDP_MULTICAST_ADDRESS).to_v4(),
+                ip::make_address(ifAddr).to_v4()));
         }
         return socket;
     }

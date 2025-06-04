@@ -37,7 +37,7 @@ uri parse_as_uri(const std::string& str)
 }
 
 
-std::unique_ptr<Connection_T> Connection_T::create(boost::asio::io_service& io,
+std::unique_ptr<Connection_T> Connection_T::create(boost::asio::io_context& io,
                                                    const std::string& uri_str,
                                                    log_callback_t log_callback,
                                                    cmd_descr_callback_t cmd_descr_callback)

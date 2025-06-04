@@ -32,7 +32,7 @@ struct IpConnection::Impl
 
     std::vector<std::byte> generateCommandStream(uint16_t command, const std::vector<ScatterGatherElement> &data);
 
-    Impl(io_service &io,
+    Impl(io_context &io,
          const uri& uri,
          log_callback_t log_callback = nullptr,
          cmd_descr_callback_t cmd_descr_callback = nullptr) :
@@ -86,7 +86,7 @@ std::vector<std::byte> IpConnection::Impl::generateCommandStream(uint16_t comman
 }
 
 
-IpConnection::IpConnection(boost::asio::io_service& io,
+IpConnection::IpConnection(boost::asio::io_context& io,
                            const uri& uri,
                            log_callback_t log_callback,
                            cmd_descr_callback_t cmd_descr_callback) :

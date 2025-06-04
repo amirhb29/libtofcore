@@ -58,7 +58,7 @@ public:
     /// @param io service object that manages the context the connection will run under
     /// @param uri_str URI specifing how to connect to the device to communicate with.
     /// @return 
-    static std::unique_ptr<Connection_T> create(boost::asio::io_service& io,
+    static std::unique_ptr<Connection_T> create(boost::asio::io_context& io,
                                                 const std::string& uri,
                                                 log_callback_t log_callback = nullptr,
                                                 cmd_descr_callback_t cmd_descr_callback = nullptr);
