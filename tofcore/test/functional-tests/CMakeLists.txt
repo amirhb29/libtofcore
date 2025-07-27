@@ -18,6 +18,7 @@ add_subdirectory (tof-stat)
 add_subdirectory (tof-factory-reset)
 add_subdirectory (tof-vsm)
 add_subdirectory (vsm-streamer)
+add_subdirectory (tof-read-csv)
 
 include(GNUInstallDirs)
 
@@ -40,5 +41,6 @@ install(TARGETS
     tof-factory-reset
     tof-vsm
     vsm-streamer
+    tof-read-csv
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
